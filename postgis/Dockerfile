@@ -1,0 +1,9 @@
+FROM kartoza/postgis:12.0
+
+ENV POSTGRES_DB=airplanesdb
+ENV POSTGRES_USER=advanceddb
+ENV POSTGRES_PASS=ContrasegnaSegura.123
+
+EXPOSE 5432
+
+RUN echo "DB: ${POSTGRES_DB} USER: ${POSTGRES_USER} PASSWORD: ${POSTGRES_PASS}"
