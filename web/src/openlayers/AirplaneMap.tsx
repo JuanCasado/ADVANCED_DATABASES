@@ -7,7 +7,7 @@ import OSM from 'ol/source/OSM';
 
 export default class AirplaneMap  {
 
-  private map: any;
+  private map: any
 
   constructor () {
     this.map = new Map({
@@ -22,7 +22,7 @@ export default class AirplaneMap  {
         zoom: 0
       })
     })
-  }
 
+  }
 
 }
