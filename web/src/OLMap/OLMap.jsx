@@ -17,6 +17,8 @@ import {toLonLat} from 'ol/proj';
 import PopUp from '../Container/PopUp/PopUp'
 import {popUpStore, setCoordinates} from '../Container/PopUp/PopUpActions'
 
+import { addFIR } from './MapFeatures'
+
 let map;
 export const firLayer = new VectorLayer({
   source: new VectorSource({
@@ -78,6 +80,8 @@ export class OLMap extends React.Component {
       popUpStore.dispatch(setCoordinates(hdms))
       overlay.setPosition(coordinate);
     })
+
+    //addFIR([[[0, 10e6],[10e6, 10e6], [10e6, 0], [0, 0]]])
   }
 
   render() {
