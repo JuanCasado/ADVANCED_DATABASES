@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder name="enc" class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<layout class="org.uah.leo.config.logback.PatternLayoutWithUserContext">
+				<param name="Pattern" value="[%-8user] %-5level %d{yyyy-MM-dd HH:mm:ss.SSS} %logger - %msg%n" />
+			</layout>
+		</encoder>
+	</appender>
+
+	<logger name="org.springframework" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.mybatis" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.apache" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
