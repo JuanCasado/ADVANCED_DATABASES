@@ -141,8 +141,8 @@ CREATE SEQUENCE public."RUTA_cod_ruta_seq"
 
 -- object: postgis | type: EXTENSION --
 -- DROP EXTENSION IF EXISTS postgis CASCADE;
-CREATE EXTENSION postgis
-;
+-- CREATE EXTENSION postgis
+-- ;
 -- ddl-end --
 
 -- object: public."AREA" | type: TABLE --
@@ -233,6 +233,7 @@ CREATE TABLE public."VUELO" (
 CREATE TABLE public."RUTA" (
 	cod_ruta bigint NOT NULL DEFAULT nextval('public."RUTA_cod_ruta_seq"'::regclass),
 	cod_vuelo bigint NOT NULL,
+	altitud bigint NOT NULL,
 	tramo geometry NOT NULL,
 	ts_inicio timestamp NOT NULL,
 	ts_fin timestamp NOT NULL,

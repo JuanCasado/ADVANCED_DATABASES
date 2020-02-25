@@ -1,8 +1,13 @@
 FROM kartoza/postgis:12.0
 
-ENV POSTGRES_DB=airplanesdb
-ENV POSTGRES_USER=advanceddb
-ENV POSTGRES_PASS=ContrasegnaSegura.123
+ENV POSTGRES_DB=airplanes
+ENV POSTGRES_USER=advanced
+ENV POSTGRES_PASS=password
+
+RUN mkdir /var/lib/postgresql/data/airplanes -p
+ENV PGDATA=/var/lib/postgresql/data/airplanes
+
+COPY ./modeloBD/* /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
 

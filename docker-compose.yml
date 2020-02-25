@@ -3,9 +3,9 @@ services:
   postgis:
     build: ./postgis
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:  
-      - ./postgis/data:/var/lib/postgresql/data
+      - ./postgis/data:/var/lib/postgresql/data/airplanes
   tomcat:
     build: ./tomcat
     ports:
