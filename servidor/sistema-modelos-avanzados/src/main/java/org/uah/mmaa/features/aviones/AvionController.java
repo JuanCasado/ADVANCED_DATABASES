@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.uah.mmaa.features.areas.Area;
@@ -23,9 +24,15 @@ public class AvionController
     }
     
     @GetMapping("/vuelos")
-    public List<Vuelo> getVuelos(@RequestParam Long codAvion)
+    public List<Vuelo> getVuelos()
     {
-        return avionService.fetchVuelos(codAvion);
+        return avionService.fetchVuelos();
+    }
+    
+    @RequestMapping(method = RequestMethod.GET, path = "/vuelos", params = "codAvion")
+    public List<Vuelo> getVuelosAvion(@RequestParam Long codAvion)
+    {
+        return avionService.fetchVuelos();
     }
     
     @GetMapping("/calculo")

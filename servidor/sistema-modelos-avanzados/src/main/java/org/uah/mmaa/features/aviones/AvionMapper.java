@@ -10,11 +10,13 @@ public interface AvionMapper
 {
     public List<Area> fetchAviones();
     
-    public List<Vuelo> fetchVuelos(Long codAvion);
+    public List<Vuelo> fetchVuelosAvion(Long codAvion);
+    
+    public List<Vuelo> fetchVuelos();
     
     public Ruta getRuta(Long codVuelo);
     
-    public List<Concepto> getConceptos(Ruta ruta);
+    public List<Concepto> getConceptos(Long codVuelo);
     
     public Vuelo getVuelo(Long codVuelo);
 }

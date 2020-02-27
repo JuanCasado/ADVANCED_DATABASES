@@ -9,7 +9,9 @@ public interface AvionService
 
     public List<Area> fetchAviones();
     
-    public List<Vuelo> fetchVuelos(Long codAvion);
+    public List<Vuelo> fetchVuelos();
+    
+    public List<Vuelo> fetchVuelosAvion(Long codAvion);
 
     public Calculo calcularCosteVuelo(Long codVuelo);
 

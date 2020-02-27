@@ -21,23 +21,28 @@ public class AvionServiceImpl implements AvionService
     }
 
     @Override
-    public List<Vuelo> fetchVuelos(Long codAvion)
+    public List<Vuelo> fetchVuelos()
     {
-        return avionMapper.fetchVuelos(codAvion);
+        return avionMapper.fetchVuelos();
+    }
+
+    @Override
+    public List<Vuelo> fetchVuelosAvion(Long codAvion)
+    {
+        return avionMapper.fetchVuelosAvion(codAvion);
     }
 
     @Override
     public Calculo calcularCosteVuelo(Long codVuelo)
     {
-        Ruta ruta = avionMapper.getRuta(codVuelo);
-        List<Concepto> conceptos = avionMapper.getConceptos(ruta);
+        List<Concepto> conceptos = avionMapper.getConceptos(codVuelo);
         Vuelo vuelo = avionMapper.getVuelo(codVuelo);
         Calculo calculo = new Calculo();
         calculo.setConceptos(conceptos);
         Double total = 0D;
         for (Concepto concepto : conceptos)
         {
-            if (concepto.getTipoArea().getTasa().getCodTasa() < 3L)
+            if (concepto.getArea().getTipoArea().getTasa().getCodTasa() < 3L)
                 total += calculoParcialRuta(concepto, vuelo);
             else
                 total += calculoParcialAproximacion(concepto, vuelo);
@@ -56,23 +61,27 @@ public class AvionServiceImpl implements AvionService
 
     private Double calculoParcialAproximacion(Concepto concepto, Vuelo vuelo)
     {
-        Double tasaFija = concepto.getTipoArea().getTasa().getValor();
+        Double tasaFija = concepto.getArea().getTipoArea().getTasa().getValor();
         Long peso = vuelo.getPeso();
-        
-        Double unidadesServicio = Math.pow(peso/50, 0.7);
-        
+
+        Double unidadesServicio = Math.pow(peso / 50, 0.7);
+
         Double parcial = tasaFija * unidadesServicio;
-        
+
+        concepto.setCosteCalculado(parcial);
+
         return parcial;
     }
 
     private Double calculoParcialRuta(Concepto concepto, Vuelo vuelo)
     {
-        Double tasaFija = concepto.getTipoArea().getTasa().getValor();
+        Double tasaFija = concepto.getArea().getTipoArea().getTasa().getValor();
         Double coefDistancia = concepto.getRecorrido() / 100;
-        
+
         Double parcial = tasaFija * coefDistancia;
-        
+
+        concepto.setCosteCalculado(parcial);
+
         return parcial;
     }
 

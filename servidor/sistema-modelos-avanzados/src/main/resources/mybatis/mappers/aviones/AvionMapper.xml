@@ -19,16 +19,24 @@
 	
 	<resultMap id="RutaBaseResultMap" type="Ruta">
 		<result column="tramo" property="tramo" />
-		<result column="ts_inicio" property="tsInicio" />
-		<result column="ts_fin" property="tsFin" />
+		<result column="altitud" property="altitud" />
 	</resultMap>
 	
+	<resultMap id="RecorridoResultMap" type="Concepto">
+		<result column="recorrido" property="recorrido" />
+		<association columnPrefix="a_" property="area" resultMap="org.uah.mmaa.features.areas.AreaMapper.BaseResultMap"/>	    	
+	</resultMap>
+	
+	
+	
 	<select id="getRuta" resultMap="RutaBaseResultMap" parameterType="Long">		
-		SELECT json_extract_path(ST_AsGeoJSON(ST_MakeLine(r.tramo))::json, 'coordinates') AS tramo, min(r.ts_inicio) AS ts_inicio, max(r.ts_fin) AS ts_fin
-		FROM "RUTA" r
-		WHERE cod_vuelo = #{codVuelo}
-		GROUP BY cod_vuelo
-		ORDER BY ts_inicio
+		SELECT json_extract_path(ST_AsGeoJSON(ST_MakeLine(r.tramo))::json, 'coordinates') AS tramo
+		FROM(
+			SELECT tramo
+			FROM "RUTA"
+			WHERE cod_vuelo = #{codVuelo}
+			ORDER BY cod_ruta
+			) r
 	</select>
 	
 	<select id="fetchAviones" resultMap="AvionBaseResultMap">		
@@ -36,13 +44,21 @@
 		FROM "AVION"
 	</select>
 	
-	<select id="fetchVuelos" resultMap="VueloBaseResultMap" parameterType="Long">		
+	<select id="fetchVuelosAvion" resultMap="VueloBaseResultMap" parameterType="Long">		
 		SELECT v.cod_vuelo, v.peso, o.nombre AS origen, d.nombre AS destino, a.id AS a_id
 		FROM "VUELO" v
 		LEFT JOIN "AVION" a USING(cod_avion)
 		LEFT JOIN "AEROPUERTO" o ON v.cod_origen = o.cod_aeropuerto
 		LEFT JOIN "AEROPUERTO" d ON v.cod_destino = d.cod_aeropuerto
 		WHERE v.cod_avion = #{cod_avion}
+	</select>
+	
+	<select id="fetchVuelos" resultMap="VueloBaseResultMap">		
+		SELECT v.cod_vuelo, v.peso, o.nombre AS origen, d.nombre AS destino, a.id AS a_id
+		FROM "VUELO" v
+		LEFT JOIN "AVION" a USING(cod_avion)
+		LEFT JOIN "AEROPUERTO" o ON v.cod_origen = o.cod_aeropuerto
+		LEFT JOIN "AEROPUERTO" d ON v.cod_destino = d.cod_aeropuerto
 	</select>
 	
 	<select id="getVuelo" resultMap="VueloBaseResultMap" parameterType="Long">		
@@ -52,5 +68,15 @@
 		LEFT JOIN "AEROPUERTO" o ON v.cod_origen = o.cod_aeropuerto
 		LEFT JOIN "AEROPUERTO" d ON v.cod_destino = d.cod_aeropuerto
 		WHERE v.cod_vuelo = #{codVuelo}
+	</select>
+	
+	<select id="getConceptos" resultMap="RecorridoResultMap" parameterType="Long">		
+		SELECT a.cod_area AS a_cod_area, a.nombre AS a_nombre, ta.cod_tipo_area AS a_ta_cod_tipo_area, ta.nombre AS a_ta_nombre, t.valor AS a_ta_t_valor, t.cod_tasa AS a_ta_t_cod_tasa,
+			sum(st_length(st_intersection(r.tramo, a.frontera)::geography)) / 1000 AS recorrido
+		FROM "RUTA" r, "AREA" a
+		LEFT JOIN "TIPO_AREA" ta USING(cod_tipo_area)
+		LEFT JOIN "TASA" t USING(cod_tasa)
+		WHERE r.cod_vuelo = #{codVuelo} AND st_intersects(r.tramo, a.frontera) AND ((t.cod_tasa &gt; 2 AND r.altitud &lt; a.altitud) OR t.cod_tasa &lt; 3)
+		GROUP BY cod_area, a.nombre, ta.cod_tipo_area, t.valor, t.cod_tasa
 	</select>
 </mapper>
