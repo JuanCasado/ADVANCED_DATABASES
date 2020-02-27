@@ -1,0 +1,10 @@
+
+.map {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.mouse-position-map {
+  margin-left: 50px;
+}

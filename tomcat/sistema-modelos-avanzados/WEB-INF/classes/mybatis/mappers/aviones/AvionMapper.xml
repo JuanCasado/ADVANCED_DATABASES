@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mybatis.mappers.aviones.AvionMapper">
+<mapper namespace="org.uah.mmaa.features.aviones.AvionMapper">
 	<resultMap id="AvionBaseResultMap" type="Avion">
 		<id column="cod_avion" property="codAvion" />
 		<result column="id" property="id" />
@@ -19,16 +19,14 @@
 	
 	<resultMap id="RutaBaseResultMap" type="Ruta">
 		<result column="tramo" property="tramo" />
-		<result column="ts_inicio" property="tsInicio" />
-		<result column="ts_fin" property="tsFin" />
 	</resultMap>
 	
 	<select id="getRuta" resultMap="RutaBaseResultMap" parameterType="Long">		
-		SELECT json_extract_path(ST_AsGeoJSON(ST_MakeLine(r.tramo))::json, 'coordinates') AS tramo, min(r.ts_inicio) AS ts_inicio, max(r.ts_fin) AS ts_fin
+		SELECT json_extract_path(ST_AsGeoJSON(ST_MakeLine(r.tramo))::json, 'coordinates') AS tramo
 		FROM "RUTA" r
 		WHERE cod_vuelo = #{codVuelo}
 		GROUP BY cod_vuelo
-		ORDER BY ts_inicio
+		ORDER BY cod_ruta
 	</select>
 	
 	<select id="fetchAviones" resultMap="AvionBaseResultMap">		
@@ -41,7 +39,7 @@
 		FROM "VUELO" v
 		LEFT JOIN "AVION" a USING(cod_avion)
 		LEFT JOIN "AEROPUERTO" o ON v.cod_origen = o.cod_aeropuerto
-		LEFT JOIN "AEROPUERTO" d ON v.cod_origen = d.cod_aeropuerto
+		LEFT JOIN "AEROPUERTO" d ON v.cod_destino = d.cod_aeropuerto
 		WHERE v.cod_avion = #{cod_avion}
 	</select>
 	
@@ -50,7 +48,7 @@
 		FROM "VUELO" v
 		LEFT JOIN "AVION" a USING(cod_avion)
 		LEFT JOIN "AEROPUERTO" o ON v.cod_origen = o.cod_aeropuerto
-		LEFT JOIN "AEROPUERTO" d ON v.cod_origen = d.cod_aeropuerto
+		LEFT JOIN "AEROPUERTO" d ON v.cod_destino = d.cod_aeropuerto
 		WHERE v.cod_vuelo = #{codVuelo}
 	</select>
 </mapper>
