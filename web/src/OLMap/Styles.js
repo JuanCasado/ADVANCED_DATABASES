@@ -1,7 +1,7 @@
 
 import {Fill, Stroke, Style} from 'ol/style';
 
-const firStyles = {
+const areaStyles = {
   'Polygon': new Style({
     stroke: new Stroke({
       color: 'rgba(205, 55, 55, 1)',
@@ -12,17 +12,7 @@ const firStyles = {
     })
   }),
 }
-const uirStyles = {
-  'Polygon': new Style({
-    stroke: new Stroke({
-      color: 'rgba(50, 0, 200, 1)',
-      width: 3
-    }),
-    fill: new Fill({
-      color: 'rgba(0, 0, 255, 0.1)'
-    })
-  })
-}
+
 const flightStyles = {
   'MultiLineString': new Style({
     stroke: new Stroke({
@@ -34,14 +24,9 @@ const flightStyles = {
 }
 
 
-export function getFirStyles(feature) {
+export function getAreaStyles(feature) {
   
-  return firStyles[feature.getGeometry().getType()]
-}
-
-export function getUirStyles(feature) {
-
-  return uirStyles[feature.getGeometry().getType()]
+  return areaStyles[feature.getGeometry().getType()]
 }
 
 export function getFlightStyles(feature) {

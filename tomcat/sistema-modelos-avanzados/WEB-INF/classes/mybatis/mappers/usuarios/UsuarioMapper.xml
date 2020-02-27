@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.uah.mmaa.features.usuarios.UsuarioMapper">
+	<resultMap id="BaseResultMap" type="Usuario">
+		<id column="cod_usuario" property="codUsuario" />
+
+		<result column="pwd_cifrada" property="pwdCifrada" />
+		<result column="fecha_alta" property="fechaAlta" />
+		<result column="fecha_baja" property="fechaBaja" />
+		
+		<association property="perfil" javaType="Perfil" notNullColumn="rol">
+	    	<result column="rol" property="rol" />
+			<result column="nombre" property="nombre" />
+			<result column="email" property="email" />
+		</association>
+	</resultMap>
+	
+	<select id="selectByEmail" parameterType="string" resultMap="BaseResultMap">
+		SELECT *
+		FROM "USUARIO"
+		WHERE lower(email) = lower(#{email})
+	</select>
+	
+	<select id="selectByCodUsuario" parameterType="long" resultMap="BaseResultMap">
+		SELECT *
+		FROM "USUARIO"
+		WHERE cod_usuario = #{codUsuario}
+	</select>
+	
+	<select id="selectAll" resultMap="BaseResultMap">
+		SELECT *
+		FROM "USUARIO"
+	</select>
+
+	<insert id="insert" parameterType="Usuario">
+        <selectKey keyProperty="codUsuario" resultType="long" order="BEFORE">
+            SELECT nextval('"USUARIO_cod_usuario_seq"')
+        </selectKey>
+        INSERT INTO "USUARIO" (cod_usuario, rol, nombre, email, pwd_cifrada, 
+        	fecha_alta, fecha_baja)
+        VALUES (#{codUsuario},
+        		#{perfil.rol}::rol,
+        		#{perfil.nombre},
+        		#{perfil.email},
+   				#{pwdCifrada},
+   				now(),
+   				#{fechaBaja})
+    </insert>
+    
+    <update id="update" parameterType="Usuario">
+		UPDATE "USUARIO"
+		SET rol = #{perfil.rol}::rol,
+			nombre = #{perfil.nombre},
+	        email = #{perfil.email},
+	        pwd_cifrada = #{pwdCifrada},
+	        fecha_alta = #{fechaAlta},
+	        fecha_baja = #{fechaBaja}
+		WHERE cod_usuario = #{codUsuario}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM "USUARIO"
+		WHERE cod_usuario = #{codUsuario}
+	</delete>
+</mapper>

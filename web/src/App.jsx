@@ -4,26 +4,27 @@ import './App.css';
 
 import Drawer from './SideBar/Drawer'
 import { OLMap } from './OLMap/OLMap'
-import SatelliteIcon from '@material-ui/icons/Satellite'
 import FlightTakeoffIcon from '@material-ui/icons/FlightTakeoff'
 import FlightIcon from '@material-ui/icons/Flight'
 
 import ElementView from './Container/ElementView'
-import createElement from './Container/Element'
+import {Element} from './Container/Element'
 
+import axios from 'axios'
 import * as features from './OLMap/MapFeatures'
 
 function update () {
-  return new Promise((resolve)=>{
-    console.log('UPDATE')
-    resolve([createElement('FIR', 'name'), createElement('FIR', 'name2'), createElement('FIR', 'name3')])
-  })
-}
-function create (value) {
-  features.addFIR(value)
-  return new Promise((resolve)=>{
-    console.log('CREATE:' + value)
-    resolve([])
+  return new Promise((resolve, reject)=>{
+    axios.get('http://localhost:8080/sistema-modelos-avanzados/area')
+    .then((areas)=>{
+      features.clearAreas()
+      resolve(areas.data.map((area)=>{
+        const renderer = <Element name={area.nombre} type={area.tipoArea.nombre}/>
+        features.addArea(features.transformGeometry(JSON.parse(area.frontera)), renderer)
+        return renderer
+      }))
+    })
+    .catch((error)=>reject(error))
   })
 }
 
@@ -34,14 +35,12 @@ function App () {
           content: <OLMap/>,
           tabs: {
             icon: [
-              <SatelliteIcon/>,
               <FlightTakeoffIcon/>,
               <FlightIcon/>
             ],
             panel: [
-              <ElementView name={'FIR'} content={[]} update={update} createNew={create}/>,
-              <ElementView name={'UIR'} content={[]} update={update} createNew={create}/>,
-              <ElementView name={'FLIGHT'} content={[]} update={update} createNew={create}/>
+              <ElementView name={'AREAS'} content={[]} update={update} />,
+              <ElementView name={'FLIGHTS'} content={[]} update={update} />
             ],
           }
         }}

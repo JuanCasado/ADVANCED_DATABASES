@@ -21,7 +21,7 @@ export default function  Holder (props) {
       {props.content.map((element, index) => {
         const divider = index<(props.content.length-1)? <Divider /> : ''
         return(
-          <div>
+          <div key={index}>
             <ListItem key={index}>
               {element}
             </ListItem>

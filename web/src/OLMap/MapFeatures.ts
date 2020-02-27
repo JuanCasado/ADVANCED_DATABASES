@@ -3,8 +3,9 @@ import { Component } from 'react'
 import {Polygon, MultiLineString} from 'ol/geom'
 import GeometryLayout from 'ol/geom/GeometryLayout'
 import Feature from 'ol/Feature'
-import {uirLayer, firLayer, flightLayer} from './OLMap'
+import {areaLayer, flightLayer} from './OLMap'
 import VectorLayer from 'ol/layer/Vector';
+import {fromLonLat} from 'ol/proj'
 
 function createPolygon(coordinates : number[]) {
   return new Polygon(coordinates, GeometryLayout.XY)
@@ -25,14 +26,28 @@ function addToLayer (feature : Feature, layer : VectorLayer) {
   layer.getSource().addFeature(feature)
 }
 
-export function addFIR (polygon : number[], renderer : Component){
-  addToLayer(createFeature(createPolygon(polygon),renderer),firLayer)
+function clearLayer (layer : VectorLayer) {
+  layer.getSource().clear()
 }
-export function addUIR (polygon : number[], renderer : Component){
-  addToLayer(createFeature(createPolygon(polygon),renderer),uirLayer)
+
+export function addArea (polygon : number[], renderer : Component){
+  addToLayer(createFeature(createPolygon(polygon),renderer),areaLayer)
 }
+
+export function clearAreas (){
+  clearLayer(areaLayer)
+}
+
 export function addFLIGHT (line : number[], renderer : Component){
   addToLayer(createFeature(createLine(line),renderer),flightLayer)
+}
+
+export function clearFLIGHT (){
+  clearLayer(flightLayer)
+}
+
+export function transformGeometry (geometry : number[][][]) {
+  return [geometry[0].map((point)=>{return fromLonLat(point)})]
 }
 
 

@@ -2,7 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import './OLMap.css'
-import {getFirStyles, getUirStyles, getFlightStyles} from './Styles.js'
+import {getAreaStyles, getFlightStyles} from './Styles.js'
 
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -15,23 +15,16 @@ import {toStringHDMS} from 'ol/coordinate';
 import {toLonLat} from 'ol/proj';
 
 import PopUp from '../Container/PopUp/PopUp'
-import {popUpStore, setCoordinates} from '../Container/PopUp/PopUpActions'
+import {popUpStore, setCoordinates, setContent} from '../Container/PopUp/PopUpActions'
 
-import { addFIR } from './MapFeatures'
-
-let map;
-export const firLayer = new VectorLayer({
+let map = null;
+export const areaLayer = new VectorLayer({
   source: new VectorSource({
     features: []
   }),
-  style: getFirStyles
+  style: getAreaStyles
 })
-export const uirLayer = new VectorLayer({
-  source: new VectorSource({
-    features: [],
-  }),
-  style: getUirStyles
-})
+
 export const flightLayer = new VectorLayer({
   source: new VectorSource({
     features: []
@@ -42,46 +35,48 @@ export const flightLayer = new VectorLayer({
 export class OLMap extends React.Component {
 
   componentDidMount() {
-    const mapLayer = new TileLayer({source: new OSM()})
-    const popup = <PopUp store={popUpStore}/>
-    const popupDiv = document.createElement('popup-div');
-    ReactDOM.render(popup, popupDiv)
-    const overlay = new Overlay({
-      element: popupDiv,
-      autoPan: true,
-      autoPanAnimation: {
-        duration: 250
-      }
-    })
-    map = new Map({
-      target: 'map',
-      layers: [
-        mapLayer, firLayer, uirLayer, flightLayer
-      ],
-      overlays: [overlay],
-      view: new View({
-        center: [0, 0],
-        zoom: 2
-      }),
-      controls: defaultControls({
-        attributionOptions:{collapsible: true}
-      }).extend([
-        new FullScreen({source:'root'}),
-        new MousePosition({className:'mouse-position-map', coordinateFormat: toStringHDMS}),
-        new ScaleLine(),
-      ])
-    })
-    map.on('singleclick', function(event) {
-      const coordinate = event.coordinate
-      const hdms = toStringHDMS(toLonLat(coordinate))
-      map.forEachFeatureAtPixel(map.getPixelFromCoordinate(event.coordinate), (feature) => {
-        console.log(feature)
-      }, {hitTolerance: 5})
-      popUpStore.dispatch(setCoordinates(hdms))
-      overlay.setPosition(coordinate);
-    })
-
-    //addFIR([[[0, 10e6],[10e6, 10e6], [10e6, 0], [0, 0]]])
+    if (map == null){
+      const mapLayer = new TileLayer({source: new OSM()})
+      const popup = <PopUp store={popUpStore}/>
+      const popupDiv = document.createElement('popup-div');
+      ReactDOM.render(popup, popupDiv)
+      const overlay = new Overlay({
+        element: popupDiv,
+        autoPan: true,
+        autoPanAnimation: {
+          duration: 250
+        }
+      })
+      map = new Map({
+        target: 'map',
+        layers: [
+          mapLayer, areaLayer, flightLayer
+        ],
+        overlays: [overlay],
+        view: new View({
+          center: [397e5, 43e5],
+          zoom: 5.8
+        }),
+        controls: defaultControls({
+          attributionOptions:{collapsible: true}
+        }).extend([
+          new FullScreen({source:'root'}),
+          new MousePosition({className:'mouse-position-map', coordinateFormat: (coordinate)=>{return toStringHDMS(toLonLat(coordinate))}}),
+          new ScaleLine(),
+        ])
+      })
+      map.on('singleclick', function(event) {
+        const coordinate = event.coordinate
+        const hdms = toStringHDMS(toLonLat(coordinate))
+        const features = []
+        map.forEachFeatureAtPixel(map.getPixelFromCoordinate(event.coordinate), (feature) => {
+          features.push(feature.values_.renderer)
+        }, {hitTolerance: 1})
+        popUpStore.dispatch(setContent(features))
+        popUpStore.dispatch(setCoordinates(hdms))
+        overlay.setPosition(coordinate);
+      })
+    }
   }
 
   render() {
