@@ -18,5 +18,7 @@ public interface AvionMapper
     
     public List<Concepto> getConceptos(Long codVuelo);
     
+    public List<Concepto> getConceptosDesagrupados(Long codVuelo);
+    
     public Vuelo getVuelo(Long codVuelo);
 }

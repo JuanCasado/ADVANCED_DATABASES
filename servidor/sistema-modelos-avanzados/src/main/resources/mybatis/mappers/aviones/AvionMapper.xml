@@ -79,4 +79,14 @@
 		WHERE r.cod_vuelo = #{codVuelo} AND st_intersects(r.tramo, a.frontera) AND ((t.cod_tasa &gt; 2 AND r.altitud &lt; a.altitud) OR t.cod_tasa &lt; 3)
 		GROUP BY cod_area, a.nombre, ta.cod_tipo_area, t.valor, t.cod_tasa
 	</select>
+	
+	<select id="getConceptosDesagrupados" resultMap="RecorridoResultMap" parameterType="Long">		
+		SELECT a.cod_area AS a_cod_area, a.nombre AS a_nombre, ta.cod_tipo_area AS a_ta_cod_tipo_area, ta.nombre AS a_ta_nombre, t.valor AS a_ta_t_valor, t.cod_tasa AS a_ta_t_cod_tasa,
+			st_length(st_intersection(r.tramo, a.frontera)::geography) / 1000 AS recorrido
+		FROM "RUTA" r, "AREA" a
+		LEFT JOIN "TIPO_AREA" ta USING(cod_tipo_area)
+		LEFT JOIN "TASA" t USING(cod_tasa)
+		WHERE r.cod_vuelo = #{codVuelo} AND st_intersects(r.tramo, a.frontera) AND ((t.cod_tasa &gt; 2 AND r.altitud &lt; a.altitud) OR t.cod_tasa &lt; 3)
+	</select>
+	
 </mapper>

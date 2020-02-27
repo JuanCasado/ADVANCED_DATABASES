@@ -33,13 +33,20 @@ public class AvionServiceImpl implements AvionService
     }
 
     @Override
-    public Calculo calcularCosteVuelo(Long codVuelo)
+    public Calculo calcularCosteVuelo(Long codVuelo, Boolean desagrupado)
     {
         List<Concepto> conceptos = avionMapper.getConceptos(codVuelo);
+        
+        if (desagrupado)
+            conceptos = avionMapper.getConceptosDesagrupados(codVuelo);
+        else
+            conceptos = avionMapper.getConceptos(codVuelo);
+        
         Vuelo vuelo = avionMapper.getVuelo(codVuelo);
         Calculo calculo = new Calculo();
         calculo.setConceptos(conceptos);
         Double total = 0D;
+        
         for (Concepto concepto : conceptos)
         {
             if (concepto.getArea().getTipoArea().getTasa().getCodTasa() < 3L)
