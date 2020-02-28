@@ -38,7 +38,13 @@ public class AvionController
     @GetMapping("/calculo")
     public Calculo getCalculoVuelo(@RequestParam Long codVuelo)
     {
-        return avionService.calcularCosteVuelo(codVuelo);
+        return avionService.calcularCosteVuelo(codVuelo, false);
+    }
+    
+    @GetMapping("/calculo/desagrupado")
+    public Calculo getCalculoVueloDesagrupado(@RequestParam Long codVuelo)
+    {
+        return avionService.calcularCosteVuelo(codVuelo, true);
     }
     
     @GetMapping("/vuelos/ruta")

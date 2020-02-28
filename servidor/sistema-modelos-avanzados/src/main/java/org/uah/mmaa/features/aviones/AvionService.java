@@ -13,7 +13,7 @@ public interface AvionService
     
     public List<Vuelo> fetchVuelosAvion(Long codAvion);
 
-    public Calculo calcularCosteVuelo(Long codVuelo);
+    public Calculo calcularCosteVuelo(Long codVuelo, Boolean desagrupado);
 
     public Ruta getRuta(Long codVuelo);
 }
