@@ -10,11 +10,7 @@ services:
     build: ./tomcat
     ports:
       - 8080:8080
-    volumes:
-      - ./tomcat:/usr/local/tomcat/webapps/
   web:
     build: ./web
     ports:
       - 80:80
-    volumes:
-      - ./web/build:/usr/share/nginx/html
