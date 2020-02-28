@@ -2,7 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import './OLMap.css'
-import {getAreaStyles, getFlightStyles} from './Styles.js'
+import {getAreaStyles, getFlightStyles, getPointStyle} from './Styles.js'
 
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -17,6 +17,8 @@ import {toLonLat} from 'ol/proj';
 import PopUp from '../Container/PopUp/PopUp'
 import {popUpStore, setCoordinates, setContent} from '../Container/PopUp/PopUpActions'
 
+import * as mapFeatures from './MapFeatures'
+
 let map = null;
 export const areaLayer = new VectorLayer({
   source: new VectorSource({
@@ -30,6 +32,13 @@ export const flightLayer = new VectorLayer({
     features: []
   }),
   style: getFlightStyles
+})
+
+export const pointLayer = new VectorLayer({
+  source: new VectorSource({
+    features: []
+  }),
+  style: getPointStyle
 })
 
 export class OLMap extends React.Component {
@@ -50,7 +59,7 @@ export class OLMap extends React.Component {
       map = new Map({
         target: 'map',
         layers: [
-          mapLayer, areaLayer, flightLayer
+          mapLayer, areaLayer, flightLayer, pointLayer
         ],
         overlays: [overlay],
         view: new View({
@@ -69,12 +78,15 @@ export class OLMap extends React.Component {
         const coordinate = event.coordinate
         const hdms = toStringHDMS(toLonLat(coordinate))
         const features = []
+        mapFeatures.removeClicks()
         map.forEachFeatureAtPixel(map.getPixelFromCoordinate(event.coordinate), (feature) => {
           features.push(feature.values_.renderer)
-        }, {hitTolerance: 1})
+          mapFeatures.addClick(feature)
+        }, {hitTolerance: 2})
         popUpStore.dispatch(setContent(features))
         popUpStore.dispatch(setCoordinates(hdms))
-        overlay.setPosition(coordinate);
+        overlay.setPosition(coordinate)
+        mapFeatures.clearLayer(pointLayer)
       })
     }
   }

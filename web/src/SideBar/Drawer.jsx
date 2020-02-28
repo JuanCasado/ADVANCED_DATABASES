@@ -15,7 +15,7 @@ import TabPanel from './TabPanel'
 
 
 
-const drawerWidth = window.innerWidth > 500? window.innerWidth*0.3:window.innerWidth;
+const drawerWidth = window.innerWidth > 1500? window.innerWidth*0.3: window.innerWidth > 100? window.innerWidth*0.5 : 500;
 
 const useStyles = makeStyles(theme => ({
   root: {
