@@ -4,7 +4,7 @@
 Using Hadoop 3.2.1 over debian 9 with JDK-8.
 The stack deploys a multi node hadoop with the following components installed.
 
-* Flume
+* Flume 1.7.0
 * HBase 2.2.4
 * Pig 0.17.0
 * Hive 3.1.2
@@ -17,7 +17,7 @@ Before stating the compose or the swarm deployment the base container needs to b
 This can be done by running:
 
 ```bash
-docker build base -t hadoop-base:latest
+./setup.sh
 ```
 
 Then the rest of the images can be built with:
@@ -26,7 +26,7 @@ Then the rest of the images can be built with:
 docker-compose build
 ```
 
-This last step is optional but recommended for Compose deployment but mandatory for Swarm.
+For swarm to run docker-compose docker-machine are needed.
 
 ## Hadoop Compose single node
 
@@ -60,13 +60,15 @@ This will build the images needed for the swarm.
 Also the containers can be build manually before starting the swarm.
 
 ```bash
-./swarm up
+  ./swarm.sh up
 ```
+
+Swarm will start a swarm visualizer on port 8080.
 
 ### Stopping swarm
 
 ```bash
-./swarm down
+  ./swarm.sh down
 ```
 
 ## Accessing services
@@ -77,6 +79,46 @@ Also the containers can be build manually before starting the swarm.
 * Nodemanager: [http://localhost:8042/node](http://localhost:8042/node)
 * Resource manager: [http://localhost:8088/](http://localhost:8088/)
 * HBase: [http://localhost:16010/master-status](http://localhost:16010/master-status)
+
+If swarm mode is used *localhost* needs to be changed for the IP that swarm creates for its entry point, that IP is printed when swarm up is run.
+Also it can be checked with:
+
+```bash
+docker-machine ls
+```
+
+It will be the IP of the master.
+
+## Extracting data with flume
+
+```bash
+docker-compose -f docker-compose-data.yml up flume
+```
+
+By modifying docker-compose-data.yml env.SOURCE parameter container execution can be changed.
+Options are:
+
+```yml
+  SOURCE: "TwitterSpainpbKeywords"
+  SOURCE: "TwitterSpainPB"
+  SOURCE: "TwitterMadrid"
+  SOURCE: "TwitterKeywords"
+  SOURCE: "TwitterBarcelona"
+```
+
+## Moving data from hdfs to hbase with pig
+
+```bash
+docker-compose -f docker-compose-data.yml up pig
+```
+
+By modifying docker-compose-data.yml command parameter container execution can be changed.
+Options are:
+
+```yml
+  command: "pig -x local /scripts/analysis.pig"
+  command: "pig -x mapreduce /scripts/analysis.pig"
+```
 
 ## Configuring hadoop
 
@@ -90,9 +132,3 @@ The available configurations are:
 * /etc/hadoop/mapred-site.xml  MAPRED_CONF
 
 If you need to extend some other configuration file, refer to base/entrypoint.sh bash script.
-
-
-CREATE TABLE hbase_table_1(key int, value string)
-STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
-WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,cf1:val")
-TBLPROPERTIES ("hbase.table.name" = "xyz");
