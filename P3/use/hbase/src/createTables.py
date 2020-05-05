@@ -1,6 +1,5 @@
 
 import happybase as hbase
-import * from tables
 
 def create_table(connection, name, families):
   families_dict = {family:dict() for family in families}
