@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  flume:
+    image: flume:latest
+    build: flume
+    container_name: flume
+    hostname: flume
+    stdin_open: true
+    tty: true
+    networks:
+      - hadoop-network
+    volumes:
+      - ./flume/conf:/config
+    command: "bash -c '/app/bin/flume-init'"
+    environment:
+      SOURCE: "TwitterSpainpbKeywords"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088 nodemanager:8042 zoo:2181 hbase-master:16010 hive-metastore:9083"
+    env_file:
+      - ./hadoop.env
+
+  pig:
+    image: pig:latest
+    build: pig
+    container_name: pig
+    hostname: pig
+    stdin_open: true
+    tty: true
+    networks:
+      - hadoop-network
+    volumes:
+      - ./pig/scripts:/scripts
+    command: "pig -x local /scripts/analysis.pig"
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088 nodemanager:8042 zoo:2181 hbase-master:16010 hive-metastore:9083"
+    env_file:
+      - ./hadoop.env
+
+networks:
+  hadoop-network:
+    external:
+      name: hadoop-network
