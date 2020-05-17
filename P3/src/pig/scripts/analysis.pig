@@ -15,9 +15,19 @@
 
 register '/pig-libs/*.jar'
 register '/pig-0.17.0/lib/*.jar'
+register '/pig-0.17.0/lib/h2/*.jar'
 register '/pig-0.17.0/ivy/*.jar'
-register '/opt/hbase-2.2.4/lib/*.jar'
-register '/opt/hadoop-3.2.1/share/hadoop/*/*.jar'
+
+register '/hbase-1.6.0/lib/*.jar'
+
+register '/opt/hadoop-2.6.0/share/hadoop/common/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/common/lib/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/hdfs/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/hdfs/lib/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/mapreduce/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/tools/lib/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/yarn/*.jar'
+register '/opt/hadoop-2.6.0/share/hadoop/yarn/lib/*.jar'
 
 
 define UniformDate mutual.UniformDate();
@@ -91,21 +101,19 @@ tweets = foreach mutual generate (chararray)MD5gen(id_str) as rowkey:chararray,
     screen_name;
 
 tweets = filter tweets by
-    hashtags_str matches '.*\\b(COVID|COVID-19|covid|covid-19|[Ss]alud|[Ee]nfermedad|[Cc]ovid|[Cc]ovid-19|[Mm][eé]dicos|[Ss]anitarios)\\b.*'
-    or text matches '.*\\b(COVID|COVID-19|covid|covid-19|[Ss]alud|[Ee]nfermedad|[Cc]ovid|[Cc]ovid-19|[Mm][eé]dicos|[Ss]anitarios)\\b.*';
+    hashtags_str matches '.*\\b(COVID|COVID-19|covid|covid-19|[Ss]alud|[Ee]nfermedad|[Cc]ovid|[Cc]ovid-19|[Mm][eé]dicos|[Ss]anitarios|[Mm]inisterio|[Dd]esescalada|[Pp]andemia|[Aa]plausos)\\b.*'
+    or text matches '.*\\b(COVID|COVID-19|covid|covid-19|[Ss]alud|[Ee]nfermedad|[Cc]ovid|[Cc]ovid-19|[Mm][eé]dicos|[Ss]anitarios|[Mm]inisterio|[Dd]esescalada|[Pp]andemia|[Aa]plausos)\\b.*';
 
-/*
-tweets = foreach tweets generate rowkey, hashtags_str, text;
-dump tweets;
-describe tweets;
-*/
 
-/*
--- select count(*) as coTweets from tweets
-grTweets = group tweets all;
-coTweets = foreach grTweets generate COUNT(tweets);
-dump coTweets;
-*/
+-- tweets = foreach tweets generate rowkey, hashtags_str, text;
+-- dump tweets;
+-- describe tweets;
+
+-- select count(*) as coTweets from tweets;
+-- grTweets = group tweets all;
+-- coTweets = foreach grTweets generate COUNT(tweets);
+-- dump coTweets;
+
 
 /*******************************************************************************
  * relationships, mentions, mentioned
@@ -135,35 +143,14 @@ mentioned = foreach relationships generate CONCAT(MD5gen(r_user_id_str), MD5gen(
  * and they must be in the same order
  ******************************************************************************/
 
-store tweets into 'tweets' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('
-    t:c_lng t:c_lat 
-    t:date_time 
-    t:year t:month t:day t:week 
-    t:hour t:minute t:second 
-    e:hashtags_str 
-    e:user_mentions_str 
-    t:favorite_count 
-    t:filter_level 
-    t:g_lat t:g_lng 
-    t:id t:id_str 
-    t:in_reply_to_screen_name 
-    t:in_reply_to_status_id t:in_reply_to_status_id_str 
-    t:in_reply_to_user_id t:in_reply_to_user_id_str 
-    t:lang 
-    p:bb_lng p:bb_lat 
-    t:possibly_sensitive 
-    t:retweet_count 
-    t:source 
-    t:text 
-    t:truncated 
-    u:followers_count 
-    u:user_id u:user_id_str 
-    u:screen_name');
 
-store mentions into 'mentions' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('
-    f:user_id f:screen_name 
-    f:r_user_id f:r_screen_name');
+store tweets into 'hbase://tweets' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('
+    t:c_lng, t:c_lat, t:date_time, t:year, t:month, t:day, t:week, t:hour, t:minute, t:second, 
+    e:hashtags_str, e:user_mentions_str, 
+    t:favorite_count, t:filter_level, t:g_lat, t:g_lng, t:id, t:id_str, t:in_reply_to_screen_name, t:in_reply_to_status_id, t:in_reply_to_status_id_str, t:in_reply_to_user_id, t:in_reply_to_user_id_str, t:lang, 
+    p:bb_lng, p:bb_lat, t:possibly_sensitive, t:retweet_count, t:source, t:text, t:truncated 
+    u:followers_count, u:user_id u:user_id_str, u:screen_name');
 
-store mentioned into 'mentioned' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('
-    f:r_user_id f:r_screen_name 
-    f:user_id f:screen_name');
+store mentions into 'hbase://mentions' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('f:user_id, f:screen_name, f:r_user_id, f:r_screen_name');
+
+store mentioned into 'hbase://mentioned' using org.apache.pig.backend.hadoop.hbase.HBaseStorage('f:r_user_id, f:r_screen_name, f:user_id, f:screen_name');

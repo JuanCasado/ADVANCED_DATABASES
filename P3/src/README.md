@@ -9,7 +9,7 @@ The stack deploys a multi node hadoop with the following components installed.
 * Pig 0.17.0
 * Hive 3.1.2
 * PostgreSQL 12.2.0
-* Zookeeper 3.6.0
+* Zookeeper 3.4.10
 
 ## Setup
 
@@ -84,7 +84,7 @@ If swarm mode is used *localhost* needs to be changed for the IP that swarm crea
 Also it can be checked with:
 
 ```bash
-docker-machine ls
+  docker-machine ls
 ```
 
 It will be the IP of the master.
@@ -92,7 +92,7 @@ It will be the IP of the master.
 ## Extracting data with flume
 
 ```bash
-docker-compose -f docker-compose-data.yml up flume
+  docker-compose -f docker-compose-data.yml up flume
 ```
 
 By modifying docker-compose-data.yml env.SOURCE parameter container execution can be changed.
@@ -106,10 +106,16 @@ Options are:
   SOURCE: "TwitterBarcelona"
 ```
 
+To access the container:
+
+```yml
+  command: "bash"
+```
+
 ## Moving data from hdfs to hbase with pig
 
 ```bash
-docker-compose -f docker-compose-data.yml up pig
+  docker-compose -f docker-compose-data.yml up pig
 ```
 
 By modifying docker-compose-data.yml command parameter container execution can be changed.
@@ -118,6 +124,28 @@ Options are:
 ```yml
   command: "pig -x local /scripts/analysis.pig"
   command: "pig -x mapreduce /scripts/analysis.pig"
+```
+
+To access the container:
+
+```yml
+  command: "bash"
+```
+
+## Exploiting Twitter
+
+By following the Lambda architecture this hadoop installation can be used by performing the following actions:
+
+1. Create Hbase and Hive tables if not yet created
+2. Extract data from Twitter with Flume and save it on HDFS
+3. Load that data from HDFS into Hbase
+4. Delete the data from HDFS
+5. Repeat from step 2
+
+This actions have already been implemented leaving the data ready to use in Hive by running
+
+```bash
+  ./exploit.sh
 ```
 
 ## Configuring hadoop

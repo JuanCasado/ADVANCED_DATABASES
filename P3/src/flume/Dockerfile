@@ -18,6 +18,7 @@ RUN ln -s /usr/local/apache-flume/apache-flume-1.7.0-SNAPSHOT-bin/ /app && \
   ln -s /usr/local/apache-flume/apache-flume-1.7.0-SNAPSHOT-bin/conf /config
 
 ADD flume-init /app/bin/
+ADD flume-cicle /app/bin/
 ADD flume-env.sh /config/
 
 ADD conf/* /config/
