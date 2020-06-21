@@ -103,8 +103,8 @@ services:
     volumes:
       - ./pig/scripts:/scripts
     #command: "pig -x local /scripts/analysis.pig"
-    #command: "pig -x mapreduce /scripts/analysis.pig"
-    command: "bash"
+    command: "pig -x mapreduce /scripts/analysis.pig"
+    #command: "bash"
     environment:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088 nodemanager:8042 zoo:2181 hbase-master:16010"
     env_file:
